@@ -1,0 +1,30 @@
+{
+  "name": "folder-sweeper",
+  "version": "1.0.0",
+  "description": "Sweeps out empty folders and folders only containing folder.jpg",
+  "main": "index.js",
+  "scripts": {
+    "lint": "jslint index.js src/folder-sweeper.js tests/folder-sweeper.spec.js",
+    "test": "mocha tests src",
+    "autotest": "mocha --watch --reporter mocha-yar tests src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fluffynuts/FolderSweeper.git"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/fluffynuts/FolderSweeper/issues"
+  },
+  "homepage": "https://github.com/fluffynuts/FolderSweeper#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "jasmine": "^2.4.1",
+    "jasmine-node": "^1.14.5",
+    "jslint": "^0.10.0",
+    "mocha": "^2.4.5",
+    "mocha-yar": "^1.0.4",
+    "temp": "^0.8.3"
+  }
+}
