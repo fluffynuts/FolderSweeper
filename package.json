@@ -12,7 +12,10 @@
     "type": "git",
     "url": "git+https://github.com/fluffynuts/FolderSweeper.git"
   },
-  "author": "",
+  "bin": {
+    "folder-sweeper": "index.js"
+  },
+  "author": "Davyd McColl",
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/fluffynuts/FolderSweeper/issues"
@@ -26,5 +29,8 @@
     "mocha": "^2.4.5",
     "mocha-yar": "^1.0.4",
     "temp": "^0.8.3"
+  },
+  "dependencies": {
+    "cli": "^0.11.2"
   }
 }
