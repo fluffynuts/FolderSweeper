@@ -1,13 +1,19 @@
 var expect = require('chai').expect,
     path = require('path');
     temp = require('temp'),
+    sinon = require('sinon'),
     sut = require('../src/folder-sweeper'),
     fs = require('fs');
 
 describe('folder-sweeper', () => {
+  var sandbox;
   temp.track();
+  beforeEach(() => {
+    sandbox = sinon.sandbox.create();
+  });
   afterEach(() => {
     temp.cleanupSync();
+    sandbox.restore();
   });
   it('should be a function', () => {
     // Arrange
@@ -111,8 +117,27 @@ describe('folder-sweeper', () => {
     expect(fs.existsSync(folder)).to.be.false;
   });
 
+  it('should delete a folder containing nested folder.jpg if given options with "folder-jpg" == true', () => {
+    // Arrange
+    var base = temp.mkdirSync();
+    var folder =  path.join(base, 'first-level');
+    fs.mkdirSync(folder);
+    folder = path.join(folder, 'not-empty');
+    fs.mkdirSync(folder);
+    var file = path.join(folder, 'folder.jpg');
+    fs.writeFileSync(file, 'some data');
+    expect(fs.lstatSync(file).isFile()).to.be.true;
+    // Act
+    var opts = { "folder-jpg": true };
+    sut(base, opts);
+    // Assert
+    expect(fs.existsSync(file)).to.be.false;
+    expect(fs.existsSync(folder)).to.be.false;
+  });
+
   it('should NOT delete a folder containing folder.jpg if given options with "folder-jpg" == true and "dry-run" == true', () => {
     // Arrange
+    var stub = sandbox.stub(console, 'log');
     var base = temp.mkdirSync();
     var folder = path.join(base, 'not-empty');
     fs.mkdirSync(folder);
@@ -125,6 +150,7 @@ describe('folder-sweeper', () => {
     // Assert
     expect(fs.existsSync(file)).to.be.true;
     expect(fs.existsSync(folder)).to.be.true;
+    expect(stub).to.have.been.called;
   });
 
 });
