@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 var sweeper = require('./src/folder-sweeper'),
-    cli = require('cli');
-cli.enable('glob');
-cli.parse({
-  'folder-jpg': ['j', 'Remove folder.jpg too'],
-  'dry-run': ['d', 'Just report what would be done; don\'t actually do it']
-});
+    cli = require('cli').enable('glob');
+
+cli.parse(sweeper.options);
 
 cli.main((args, options) => {
   if (options['dry-run']) {

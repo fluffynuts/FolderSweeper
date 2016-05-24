@@ -17,16 +17,17 @@ function basename(str) {
   return last(splitpath(str));
 }
 
-function folderOnlyContainsFolderJpg(folder) {
+function folderOnlyContainsDeletables(folder, options) {
   var contents = ls(folder);
-  return contents.length === 1 &&
-          basename(contents[0]).toLowerCase() === 'folder.jpg';
+  return contents.reduce((acc, cur) => {
+    return acc && options.deletables.indexOf(basename(cur).toLowerCase()) > -1;
+  }, true);
 }
 
-function deleteFolderJpgIn(folder, options) {
+function deleteDeletablesIn(folder, options) {
   var toDelete = ls(folder).filter(item => {
                     var fname = basename(item);
-                    return fname.toLowerCase() === 'folder.jpg';
+                    return options.deletables.indexOf(fname.toLowerCase()) > -1;
                   });
   toDelete.forEach(d => unlink(d, options));
 }
@@ -39,16 +40,16 @@ function deleteIfEmptyFolder(folder, options) {
   if (!stat.isDirectory()) {
     return;
   }
-  if (options['folder-jpg'] &&
-      folderOnlyContainsFolderJpg(folder)) {
-    deleteFolderJpgIn(folder, options);
-  }
   var contents = ls(folder);
   contents.forEach(c => deleteIfEmptyFolder(c, options));
+  if (options.deletables.length &&
+      folderOnlyContainsDeletables(folder, options)) {
+    deleteDeletablesIn(folder, options);
+  }
   contents = ls(folder);
   if (contents.length) {
     if (options['dry-run'] &&
-        folderOnlyContainsFolderJpg(folder)) {
+        folderOnlyContainsDeletables(folder, options)) {
       console.log('rmdir: ' + folder);
     }
     return;
@@ -56,6 +57,7 @@ function deleteIfEmptyFolder(folder, options) {
 
   rmdir(folder, options);
 }
+
 
 function rmdir(folder, options) {
   if (options['dry-run']) {
@@ -73,10 +75,28 @@ function unlink(file, options) {
   }
 }
 
+function determineDeletablesFrom(options) {
+  var deletables = (options['unimportant-files'] || '').split(',')
+  if (options['folder-jpg']) {
+    deletables.push('folder.jpg');
+  }
+  if (options['view-xml']) {
+    deletables.push('view.xml');
+  }
+  return deletables.map(d => d.toLowerCase());
+}
+
 function sweep(base, options) {
   var contents = ls(base);
   options = options || {};
+  options.deletables = determineDeletablesFrom(options);
   contents.forEach(o => deleteIfEmptyFolder(o, options));
 }
+sweep.options = {
+  'folder-jpg': ['j', 'Remove folder.jpg too'],
+  'view-xml': ['x', 'Remove view.xml too'],
+  'unimportant-files': ['u', 'Comma-separated list of files that, without other files, imply that a folder is empty', 'string'],
+  'dry-run': ['d', 'Just report what would be done; don\'t actually do it']
+};
 
 module.exports = sweep;
