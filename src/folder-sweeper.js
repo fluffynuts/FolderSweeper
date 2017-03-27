@@ -47,11 +47,10 @@ function deleteIfEmptyFolder(folder, options) {
     deleteDeletablesIn(folder, options);
   }
   contents = ls(folder);
+  if (folderOnlyContainsDeletables(folder, options)) {
+    log(options, `rmdir: ${folder}`);
+  }
   if (contents.length) {
-    if (options['dry-run'] &&
-        folderOnlyContainsDeletables(folder, options)) {
-      console.log('rmdir: ' + folder);
-    }
     return;
   }
 
@@ -60,19 +59,25 @@ function deleteIfEmptyFolder(folder, options) {
 
 
 function rmdir(folder, options) {
+  log(options, `rmdir: ${folder}`);
   if (options['dry-run']) {
-    console.log('rmdir: ' + folder);
-  } else {
-    fs.rmdirSync(folder);
+    return;
+  }
+  fs.rmdirSync(folder);
+}
+
+function log(options, message) {
+  if (options['verbose']) {
+    console.log(message);
   }
 }
 
 function unlink(file, options) {
+  log(options, `unlink: ${file}`);
   if (options['dry-run']) {
-    console.log('unlink: ' + file);
-  } else {
-    fs.unlinkSync(file);
+    return;
   }
+  fs.unlinkSync(file);
 }
 
 function determineDeletablesFrom(options) {
@@ -89,6 +94,9 @@ function determineDeletablesFrom(options) {
 function sweep(base, options) {
   var contents = ls(base);
   options = options || {};
+  if (options['dry-run']) {
+    options['verbose'] = true;
+  }
   options.deletables = determineDeletablesFrom(options);
   contents.forEach(o => deleteIfEmptyFolder(o, options));
 }
@@ -96,7 +104,8 @@ sweep.options = {
   'folder-jpg': ['j', 'Remove folder.jpg too'],
   'view-xml': ['x', 'Remove view.xml too'],
   'unimportant-files': ['u', 'Comma-separated list of files that, without other files, imply that a folder is empty', 'string'],
-  'dry-run': ['d', 'Just report what would be done; don\'t actually do it']
+  'dry-run': ['d', 'Just report what would be done; don\'t actually do it'],
+  'verbose': ['v', 'Report on actions taken']
 };
 
 module.exports = sweep;

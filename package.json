@@ -1,6 +1,6 @@
 {
   "name": "folder-sweeper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sweeps out empty folders and folders only containing folder.jpg",
   "main": "index.js",
   "scripts": {
